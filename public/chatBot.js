@@ -13,7 +13,7 @@
 
     // Create Chat Button
     const button = document.createElement("div");
-    button.innerHTML = "🗨️";
+    button.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-message-circle"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>`;
     Object.assign(button.style, {
         position: "fixed",
         bottom: "24px",
@@ -59,7 +59,9 @@
     box.innerHTML = `
         <div style="background: #000; color: #fff; padding: 16px; display: flex; align-items: center; justify-content: space-between;">
             <div style="font-weight: 600; font-size: 16px;">Customer Support</div>
-            <div id="close-btn" style="cursor: pointer; padding: 4px;">✕</div>
+            <div id="close-btn" style="cursor: pointer; padding: 4px; display: flex; align-items: center; justify-content: center;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+            </div>
         </div>
 
         <div id="chat-messages" style="flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; background: #f9fafb;">
@@ -162,7 +164,7 @@
             }
             
         } catch (err) {
-            console.error(err);
+            console.error("ChatBot Error:", err);
             if(typingDiv.parentNode === messagesDiv) {
                 messagesDiv.removeChild(typingDiv);
             }
