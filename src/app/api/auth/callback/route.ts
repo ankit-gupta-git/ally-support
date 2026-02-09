@@ -20,8 +20,8 @@ export async function GET(req: NextRequest) {
     response.cookies.set("access_token", session.accessToken, {
         httpOnly: true,
         maxAge: 24 * 60 * 60 * 1000,
-        secure: false,
-        // sameSite: "lax",
+        secure: true,
+        sameSite: "lax",
         path: "/",
     });
 
