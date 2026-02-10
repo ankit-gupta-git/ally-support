@@ -30,18 +30,19 @@ export async function POST(req: NextRequest) {
         `;
 
         const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-        async function main() {
-            const res = await ai.models.generateContent({
-                model: "gemini-3-flash-preview",
-                contents: prompt,
-            });
 
-            const response = NextResponse.json({ reply: res.text })
-            response.headers.set("Access-Control-Allow-Origin", "*")
-            response.headers.set("Access-Control-Allow-Methods", "POST, GET, OPTIONS")
-            response.headers.set("Access-Control-Allow-Headers", "Content-Type")
-            return response
-        }
+        const res = await ai.models.generateContent({
+            model: "gemini-2.5-flash",
+            contents: prompt,
+        });
+
+        const reply = res.text || "I'm sorry, I couldn't generate a response.";
+
+        const response = NextResponse.json({ reply: reply })
+        response.headers.set("Access-Control-Allow-Origin", "*")
+        response.headers.set("Access-Control-Allow-Methods", "POST, GET, OPTIONS")
+        response.headers.set("Access-Control-Allow-Headers", "Content-Type")
+        return response
 
 
     } catch (error) {
