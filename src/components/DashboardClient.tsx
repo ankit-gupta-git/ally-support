@@ -11,6 +11,8 @@ function DashboardClient({ ownerId, email }: { ownerId: string, email: string })
     const [loading, setLoading] = useState(false)
     const [saved, setSaved] = useState(false)
 
+    const [initialLoading, setInitialLoading] = useState(true)
+
     useEffect(() => {
         const fetchSettings = async () => {
             try {
@@ -22,6 +24,8 @@ function DashboardClient({ ownerId, email }: { ownerId: string, email: string })
                 }
             } catch (error) {
                 console.error("Error fetching settings:", error)
+            } finally {
+                setInitialLoading(false)
             }
         }
 
@@ -42,6 +46,25 @@ function DashboardClient({ ownerId, email }: { ownerId: string, email: string })
             console.error("Error updating settings:", error)
             setLoading(false)
         }
+    }
+
+    if (initialLoading) {
+        return (
+            <div className="min-h-screen bg-zinc-50 text-zinc-900">
+                <Navbar email={email} dashboard={true} />
+                <div className="mt-20 flex flex-col items-center justify-center p-6">
+                    <div className="w-full max-w-2xl bg-white rounded-2xl shadow-xl border border-zinc-100 overflow-hidden p-8 space-y-8 animate-pulse">
+                        <div className="h-8 bg-zinc-200 rounded w-1/3"></div>
+                        <div className="space-y-4">
+                            <div className="h-12 bg-zinc-200 rounded-xl"></div>
+                            <div className="h-12 bg-zinc-200 rounded-xl"></div>
+                        </div>
+                        <div className="h-48 bg-zinc-200 rounded-xl"></div>
+                        <div className="h-12 bg-zinc-200 rounded-xl w-1/4"></div>
+                    </div>
+                </div>
+            </div>
+        )
     }
 
     return (

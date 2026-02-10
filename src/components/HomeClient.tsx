@@ -61,10 +61,14 @@ function HomeClient({ email }: { email: string }) {
             <div className="mt-10 flex gap-4">
               {email ? (
                 <button
-                  onClick={() => navigate.push('/dashboard')}
-                  className="px-6 py-3 rounded-xl bg-zinc-900 text-white font-medium hover:bg-zinc-800 transition-colors"
+                  onClick={() => {
+                    setIsLoading(true)
+                    navigate.push('/dashboard')
+                  }}
+                  disabled={isLoading}
+                  className="px-6 py-3 rounded-xl bg-zinc-900 text-white font-medium hover:bg-zinc-800 transition-colors disabled:opacity-50"
                 >
-                  Go to Dashboard
+                  {isLoading ? "Wait..." : "Go to Dashboard"}
                 </button>
               ) : (
                 <button
