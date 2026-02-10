@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
 
         const setting = await Settings.findOne({ ownerId })
         if (!setting) {
-            return new NextResponse("Setting not found", { status: 404 })
+            return NextResponse.json({ error: "Setting not found. Please configure your chatbot in the dashboard." }, { status: 404 })
         }
 
         const prompt = `
@@ -46,7 +46,7 @@ export async function POST(req: NextRequest) {
 
     } catch (error) {
         console.error("Error updating settings:", error)
-        return new NextResponse("Internal Server Error", { status: 500 })
+        return NextResponse.json({ error: "Internal server error", details: error instanceof Error ? error.message : String(error) }, { status: 500 })
     }
 
 }

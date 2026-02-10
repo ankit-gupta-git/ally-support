@@ -1,7 +1,7 @@
 'use client'
 import { motion } from "motion/react"
 import { Navbar } from "./Navbar"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import axios from "axios"
 
 function DashboardClient({ ownerId, email }: { ownerId: string, email: string }) {
@@ -10,6 +10,25 @@ function DashboardClient({ ownerId, email }: { ownerId: string, email: string })
     const [knowledge, setKnowledge] = useState("")
     const [loading, setLoading] = useState(false)
     const [saved, setSaved] = useState(false)
+
+    useEffect(() => {
+        const fetchSettings = async () => {
+            try {
+                const { data } = await axios.post("/api/auth/settings/get", { ownerId })
+                if (data.settings) {
+                    setBusinessName(data.settings.businessName || "")
+                    setSupportEmail(data.settings.supportEmail || "")
+                    setKnowledge(data.settings.knowledge || "")
+                }
+            } catch (error) {
+                console.error("Error fetching settings:", error)
+            }
+        }
+
+        if (ownerId) {
+            fetchSettings()
+        }
+    }, [ownerId])
 
     const handleSettings = async () => {
         setLoading(true)

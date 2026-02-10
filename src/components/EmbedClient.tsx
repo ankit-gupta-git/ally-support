@@ -1,15 +1,21 @@
 'use client'
 import { Link, Volume2, MessageCircle, X } from "lucide-react"
 import { useRouter } from "next/navigation"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 
 function EmbedClient({ ownerId }: { ownerId: string }) {
     const navigate = useRouter()
     const [copied, setCopied] = useState(false)
-    const embedCode = `<script 
-    src="${process.env.NEXT_PUBLIC_BASE_URL}/chatBot.js" 
+    const [embedCode, setEmbedCode] = useState("")
+
+    useEffect(() => {
+        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || window.location.origin
+        const code = `<script 
+    src="${baseUrl}/chatBot.js" 
     data-owner-id="${ownerId}">
 </script>`
+        setEmbedCode(code)
+    }, [ownerId])
 
     const copyCode = () => {
         navigator.clipboard.writeText(embedCode)

@@ -38,7 +38,8 @@ function HomeClient({ email }: { email: string }) {
       <main className="pt-32 px-6 max-w-7xl mx-auto">
         <div className="text-center mt-20">
           <h1 className="text-5xl font-bold tracking-tight text-zinc-900 mb-6">
-            Customer Support, <span className="bg-gradient-to-r from-violet-600 to-indigo-600 bg-clip-text text-transparent">Reimagined</span>
+            Customer Support, <span className="bg-gradient-to-r from-zinc-900 via-zinc-600 to-zinc-400
+ bg-clip-text text-transparent">Reimagined!</span>
           </h1>
           <p className="text-xl text-zinc-500 max-w-2xl mx-auto mb-10">
             AI-powered support that understands your customers. Instant responses, 24/7 availability, and seamless integration.
