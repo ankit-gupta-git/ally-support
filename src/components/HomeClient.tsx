@@ -5,6 +5,7 @@ import { Footer } from "./Footer"
 import { motion } from "motion/react"
 import { MessageCircle } from "lucide-react"
 import { useRouter } from "next/navigation"
+import { Pricing } from "./Pricing"
 
 function HomeClient({ email }: { email: string }) {
   const [isLoading, setIsLoading] = useState(false)
@@ -32,13 +33,13 @@ function HomeClient({ email }: { email: string }) {
 
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-white to-zinc-50 text-zinc-900 overflow-x-hidden">
+    <div className="min-h-screen bg-linear-to-br from-white to-zinc-50 text-zinc-900 overflow-x-hidden">
       <Navbar email={email} />
 
       <main className="pt-32 px-6 max-w-7xl mx-auto">
         <div className="text-center mt-20">
-          <h1 className="text-5xl font-bold tracking-tight text-zinc-900 mb-6">
-            Customer Support, <span className="bg-gradient-to-r from-zinc-900 via-zinc-600 to-zinc-400
+          <h1 className="text-5xl font-(family-name:--font-gyst) tracking-tight text-zinc-900 mb-6">
+            Customer Support, <span className="bg-linear-to-r from-zinc-900 via-zinc-600 to-zinc-400
  bg-clip-text text-transparent">Reimagined!</span>
           </h1>
           <p className="text-xl text-zinc-500 max-w-2xl mx-auto mb-10">
@@ -136,6 +137,10 @@ function HomeClient({ email }: { email: string }) {
           </div>
         </div>
 
+      </section>
+
+      <section className="bg-zinc-50 border-t border-zinc-200" id="pricing">
+        <Pricing email={email} showLayout={false} />
       </section>
 
       <Footer />

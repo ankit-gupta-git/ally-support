@@ -49,7 +49,7 @@ export function Navbar({ email, dashboard = false }: { email: string, dashboard?
                     </Link>
 
                     {/* Desktop Navigation */}
-                    <div className="hidden md:flex items-center gap-1">
+                    <div className="hidden md:flex items-center gap-6 mr-6">
                     </div>
 
                     {/* Right Actions */}
@@ -109,6 +109,7 @@ export function Navbar({ email, dashboard = false }: { email: string, dashboard?
                         <div className="flex flex-col gap-2">
 
                             <div className="h-px bg-zinc-100 my-2" />
+                            <div className="h-px bg-zinc-100 my-2" />
                             {!email && (
                                 <button
                                     onClick={handleLogin}
@@ -156,7 +157,7 @@ function UserMenu({ email }: { email: string }) {
         <div className="relative" ref={menuRef}>
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="w-10 h-10 rounded-full bg-gradient-to-tr from-zinc-800 to-zinc-600 flex items-center justify-center text-white font-semibold ring-2 ring-transparent hover:ring-zinc-200 transition-all active:scale-95"
+                className="w-10 h-10 rounded-full bg-linear-to-tr from-zinc-800 to-zinc-600 flex items-center justify-center text-white font-semibold ring-2 ring-transparent hover:ring-zinc-200 transition-all active:scale-95"
             >
                 {firstLetter}
             </button>
