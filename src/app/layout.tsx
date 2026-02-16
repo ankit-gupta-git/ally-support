@@ -4,7 +4,12 @@ import NextTopLoader from 'nextjs-toploader';
 import localFont from 'next/font/local';
 
 const gyst = localFont({
-  src: "../../public/fonts/Gyst-Regular.woff2",
+  src: [
+    {
+      path: "../../public/fonts/gyst-bold.woff2",
+      weight: "700",
+    }
+  ],
   variable: "--font-gyst",
 });
 
