@@ -17,6 +17,7 @@ An embeddable AI customer support chatbot built with Next.js, Google Gemini, and
 -   **AI Model**: Google Gemini 1.5 Flash
 -   **Auth**: Scalekit SDK
 -   **Database**: MongoDB (via Mongoose)
+-   **Rate Limiting**: Upstash Redis
 -   **Styling**: Tailwind CSS
 -   **Icons**: Lucide React
 
@@ -46,6 +47,10 @@ An embeddable AI customer support chatbot built with Next.js, Google Gemini, and
 
     # Google Gemini
     GEMINI_API_KEY=your_gemini_api_key
+
+    # Upstash Redis (Rate Limiting)
+    UPSTASH_REDIS_REST_URL=your_upstash_rest_url
+    UPSTASH_REDIS_REST_TOKEN=your_upstash_rest_token
 
     # App URLs
     NEXT_PUBLIC_APP_URL=http://localhost:3000

@@ -11,6 +11,8 @@
   "dependencies": {
     "@google/genai": "^1.40.0",
     "@scalekit-sdk/node": "^2.1.9",
+    "@upstash/ratelimit": "^2.0.8",
+    "@upstash/redis": "^1.38.0",
     "axios": "^1.13.5",
     "lucide-react": "^0.563.0",
     "mongoose": "^9.1.6",
