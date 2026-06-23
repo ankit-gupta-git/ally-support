@@ -21,6 +21,77 @@ An embeddable AI customer support chatbot built with Next.js, Google Gemini, and
 -   **Styling**: Tailwind CSS
 -   **Icons**: Lucide React
 
+## Architecture & Workflow
+
+Support.ai utilizes a clean, modern decoupled architecture to support fast real-time chat interactions while maintaining secure dashboard administrative operations.
+
+### System Architecture Diagram
+
+![System Architecture](./public/architecture.png)
+
+### Core Workflows
+
+#### 1. End-User Chat Bot Widget Flow
+The embedded script handles UI rendering in the client's browser, rate-limiting is checked on the server using Upstash Redis, and responses are generated via the Google Gemini 2.5 Flash model grounded with customer-specific business settings from MongoDB.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor User as End User
+    participant Browser as Client Website (Widget)
+    participant Server as Next.js API Server
+    participant Redis as Upstash Redis (Rate Limiter)
+    participant DB as MongoDB (Database)
+    participant Gemini as Google Gemini API
+
+    Note over User, Browser: User loads page with chat widget embedded
+    User->>Browser: Types message & sends
+    Browser->>Server: POST /api/chat { message, ownerId }
+    Server->>Redis: Check Rate Limit (IP-based)
+    alt Rate Limit Exceeded
+        Redis-->>Server: Limit exceeded
+        Server-->>Browser: HTTP 429 (Too Many Requests)
+        Browser-->>User: Show rate limit message
+    else Under Limit
+        Redis-->>Server: Request allowed
+        Server->>DB: Query Settings (by ownerId)
+        DB-->>Server: Return settings (knowledge, business name, support email)
+        Server->>Gemini: Request generation (System Prompt + Knowledge Base + Message)
+        Gemini-->>Server: Return generated response
+        Server-->>Browser: HTTP 200 { reply } with CORS headers
+        Browser-->>User: Display AI response
+    end
+```
+
+#### 2. Administrative Dashboard Management Flow
+Business owners manage their chatbot details and knowledge base training through a secure panel guarded by Scalekit SSO authentication.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Admin as Admin/Business Owner
+    participant Dashboard as Dashboard UI
+    participant Server as Next.js API Server
+    participant Auth as Scalekit Auth Service
+    participant DB as MongoDB (Database)
+
+    Admin->>Dashboard: Access Dashboard
+    Dashboard->>Server: Request Session
+    Server->>Auth: Validate Session / Get Session
+    alt Session Valid
+        Auth-->>Server: Session details
+        Server-->>Dashboard: Allow access
+    else No Session
+        Server-->>Dashboard: Redirect to login
+        Dashboard->>Auth: Perform SSO / Login
+    end
+    Admin->>Dashboard: Update Knowledge Base & Business Info
+    Dashboard->>Server: POST /api/auth/settings { ownerId, businessName, supportEmail, knowledge }
+    Server->>DB: findOneAndUpdate (upsert settings)
+    DB-->>Server: Save Success
+    Server-->>Dashboard: Success response
+```
+
 ## Setup & Local Development
 
 1.  **Clone the repository**:
