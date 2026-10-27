@@ -5,6 +5,7 @@ import Link from "next/link"
 import axios from "axios"
 import { gsap, useGSAP, prefersReducedMotion } from "@/lib/gsap"
 import { SplitReveal, SectionLabel, RollText, ArrowGlyph, buttonClass } from "./ui/motion"
+import { PLANS, type PlanId } from "@/lib/plans"
 
 function DashboardClient({ ownerId, email }: { ownerId: string, email: string }) {
     const [businessName, setBusinessName] = useState("")
@@ -305,10 +306,52 @@ function SettingsView(p: ViewProps) {
                                     <ArrowGlyph />
                                 </Link>
                             </div>
+
+                            <PlanCard />
                         </div>
                     </aside>
                 </div>
             </main>
+        </div>
+    )
+}
+
+// Current subscription, read from the billing API
+function PlanCard() {
+    const [plan, setPlan] = useState<{ plan: PlanId, validUntil?: string } | null>(null)
+
+    useEffect(() => {
+        axios.get("/api/billing/status")
+            .then(({ data }) => setPlan(data))
+            .catch((error) => console.error("Error fetching plan:", error))
+    }, [])
+
+    const isPaid = !!plan && plan.plan !== "free"
+
+    return (
+        <div className={`mt-6 border ${isPaid ? "border-cobalt bg-cobalt text-paper" : "border-ink bg-paper"}`}>
+            <div className="flex items-center justify-between px-5 py-5">
+                <div>
+                    <div className={`label-mono ${isPaid ? "text-paper/60" : "text-muted"}`}>Current plan</div>
+                    <div className="mt-2 font-display text-3xl tracking-tight">
+                        {plan ? PLANS[plan.plan].name : "…"}
+                    </div>
+                </div>
+                {isPaid && plan?.validUntil && (
+                    <div className="label-mono text-right text-paper/70">
+                        Renews manually
+                        <div className="mt-1.5 text-sun">
+                            Until {new Date(plan.validUntil).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
+                        </div>
+                    </div>
+                )}
+            </div>
+            {plan && !isPaid && (
+                <Link href="/pricing" className="group flex items-center justify-between border-t border-ink px-5 py-4 text-sm font-medium transition-colors duration-300 hover:bg-cobalt hover:text-paper">
+                    <RollText>Upgrade to Pro</RollText>
+                    <ArrowGlyph />
+                </Link>
+            )}
         </div>
     )
 }

@@ -1,7 +1,11 @@
 'use client'
 
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import Link from 'next/link'
+import axios from 'axios'
 import { gsap, useGSAP, prefersReducedMotion } from '@/lib/gsap'
+import { PLANS, formatINR, type PlanId } from '@/lib/plans'
+import { startCheckout } from '@/lib/checkout'
 import { Navbar } from './Navbar'
 import { Footer } from './Footer'
 import { SplitReveal, SectionLabel, RollText, ArrowGlyph, buttonClass } from './ui/motion'
@@ -10,9 +14,8 @@ const tiers = [
     {
         name: 'Free',
         id: 'tier-free',
+        planId: 'free' as PlanId,
         href: '#',
-        priceMonthly: '$0',
-        priceAnnual: '$0',
         description: 'Perfect for testing and personal projects.',
         features: ['1 chatbot', '100 messages/month', 'Basic analytics', 'Community support'],
         mostPopular: false,
@@ -20,9 +23,8 @@ const tiers = [
     {
         name: 'Pro',
         id: 'tier-pro',
+        planId: 'pro' as PlanId,
         href: '#',
-        priceMonthly: '$29',
-        priceAnnual: '$24',
         description: 'Ideal for growing businesses and startups.',
         features: [
             '5 chatbots',
@@ -37,9 +39,8 @@ const tiers = [
     {
         name: 'Enterprise',
         id: 'tier-enterprise',
+        planId: 'enterprise' as PlanId,
         href: '#',
-        priceMonthly: '$99',
-        priceAnnual: '$79',
         description: 'For large organizations with high volume needs.',
         features: [
             'Unlimited chatbots',
@@ -56,7 +57,38 @@ const tiers = [
 
 export function Pricing({ email, showLayout = true }: { email: string, showLayout?: boolean }) {
     const [isAnnual, setIsAnnual] = useState(true)
+    const [currentPlan, setCurrentPlan] = useState<{ plan: PlanId, validUntil?: string }>({ plan: 'free' })
+    const [busy, setBusy] = useState<PlanId | null>(null)
+    const [notice, setNotice] = useState<{ tone: 'ok' | 'error', text: string } | null>(null)
     const ref = useRef<HTMLDivElement>(null)
+
+    // Signed-in users see which plan they're on
+    useEffect(() => {
+        if (!email) return
+        axios.get('/api/billing/status')
+            .then(({ data }) => setCurrentPlan(data))
+            .catch((error) => console.error("Error fetching plan:", error))
+    }, [email])
+
+    const handleLogin = () => {
+        window.location.href = '/api/auth/login'
+    }
+
+    const handleUpgrade = async (plan: PlanId) => {
+        if (!email) return handleLogin()
+        setBusy(plan)
+        setNotice(null)
+        const result = await startCheckout(plan, isAnnual ? 'annual' : 'monthly')
+        setBusy(null)
+        if (result.status === 'paid') {
+            setCurrentPlan({ plan: result.plan, validUntil: result.validUntil })
+            setNotice({ tone: 'ok', text: `Payment successful. You're on ${PLANS[result.plan].name} until ${formatDate(result.validUntil)}.` })
+        } else if (result.status === 'unauthenticated') {
+            handleLogin()
+        } else if (result.status === 'error') {
+            setNotice({ tone: 'error', text: result.message })
+        }
+    }
     const first = useRef(true)
 
     // Cards rise in on scroll
@@ -148,12 +180,15 @@ export function Pricing({ email, showLayout = true }: { email: string, showLayou
 
                         <div className="mt-10 flex items-end gap-2 border-b border-current/15 pb-10">
                             <span className="inline-flex overflow-hidden">
-                                <span data-price className="block font-display text-7xl leading-[0.9] tracking-[-0.05em]">
-                                    {isAnnual ? tier.priceAnnual : tier.priceMonthly}
+                                <span data-price className="block font-display text-[clamp(2.75rem,4.6vw,4.5rem)] leading-[0.9] tracking-[-0.05em]">
+                                    {formatINR(isAnnual ? PLANS[tier.planId].annualMonthly : PLANS[tier.planId].monthly)}
                                 </span>
                             </span>
                             <span className={`pb-1.5 text-sm ${tier.mostPopular ? 'text-paper/50' : 'text-ink/50'}`}>/month</span>
                         </div>
+                        <p className={`label-mono mt-3 h-3 ${tier.mostPopular ? 'text-paper/50' : 'text-ink/45'}`}>
+                            {isAnnual && PLANS[tier.planId].annualMonthly > 0 && `Billed ${formatINR(PLANS[tier.planId].annualMonthly * 12)} yearly`}
+                        </p>
 
                         <ul role="list" className="mb-10 mt-8 flex-1 space-y-3.5">
                             {tier.features.map((feature) => (
@@ -164,15 +199,29 @@ export function Pricing({ email, showLayout = true }: { email: string, showLayou
                             ))}
                         </ul>
 
-                        <a
-                            href={tier.href}
-                            className={`${buttonClass(tier.mostPopular ? 'paper' : 'ink', 'md')} w-full justify-between`}
-                        >
-                            <RollText>{tier.name === 'Enterprise' ? 'Contact Sales' : 'Get Started'}</RollText>
-                            <ArrowGlyph />
-                        </a>
+                        <TierAction
+                            tier={tier}
+                            email={email}
+                            currentPlan={currentPlan}
+                            busy={busy}
+                            onLogin={handleLogin}
+                            onUpgrade={handleUpgrade}
+                        />
                     </div>
                 ))}
+            </div>
+
+            {/* Checkout feedback */}
+            <div aria-live="polite" className="mt-6 min-h-6">
+                {notice ? (
+                    <p className={`label-mono flex flex-wrap items-center gap-2 ${notice.tone === 'ok' ? 'text-emerald-700' : 'text-signal'}`}>
+                        <span className={`h-2 w-2 ${notice.tone === 'ok' ? 'bg-emerald-600' : 'bg-signal'}`} />
+                        {notice.text}
+                        {notice.tone === 'ok' && <Link href="/dashboard" className="ml-2 underline underline-offset-4">Open dashboard</Link>}
+                    </p>
+                ) : (
+                    <p className="label-mono text-ink/45">Payments run in Razorpay test mode. No real money is charged.</p>
+                )}
             </div>
         </div>
     )
@@ -188,5 +237,63 @@ export function Pricing({ email, showLayout = true }: { email: string, showLayou
             </main>
             <Footer />
         </div>
+    )
+}
+
+const formatDate = (iso?: string) =>
+    iso ? new Date(iso).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : ''
+
+type Tier = (typeof tiers)[number]
+
+function TierAction({ tier, email, currentPlan, busy, onLogin, onUpgrade }: {
+    tier: Tier
+    email: string
+    currentPlan: { plan: PlanId, validUntil?: string }
+    busy: PlanId | null
+    onLogin: () => void
+    onUpgrade: (plan: PlanId) => void
+}) {
+    const cls = `${buttonClass(tier.mostPopular ? 'paper' : 'ink', 'md')} w-full justify-between`
+    const isCurrent = !!email && currentPlan.plan === tier.planId
+
+    if (isCurrent) {
+        return (
+            <div className={`flex h-12 w-full items-center justify-between border px-6 text-[15px] font-medium ${tier.mostPopular ? 'border-paper/40' : 'border-ink/30'}`}>
+                <span>Current plan</span>
+                {currentPlan.validUntil && <span className="label-mono opacity-60">Until {formatDate(currentPlan.validUntil)}</span>}
+            </div>
+        )
+    }
+
+    if (tier.planId === 'enterprise') {
+        return (
+            <a href={tier.href} className={cls}>
+                <RollText>Contact Sales</RollText>
+                <ArrowGlyph />
+            </a>
+        )
+    }
+
+    if (tier.planId === 'free') {
+        return email ? (
+            <Link href="/dashboard" className={cls}>
+                <RollText>Go to Dashboard</RollText>
+                <ArrowGlyph />
+            </Link>
+        ) : (
+            <button onClick={onLogin} className={cls}>
+                <RollText>Get Started</RollText>
+                <ArrowGlyph />
+            </button>
+        )
+    }
+
+    return (
+        <button onClick={() => onUpgrade(tier.planId)} disabled={busy !== null} className={cls}>
+            <RollText>{busy === tier.planId ? 'Opening checkout...' : email ? `Upgrade to ${tier.name}` : 'Get Started'}</RollText>
+            {busy === tier.planId
+                ? <span className="h-4 w-4 animate-spin border border-current/30 border-t-current" />
+                : <ArrowGlyph />}
+        </button>
     )
 }
