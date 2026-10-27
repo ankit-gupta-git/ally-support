@@ -1,3 +1,208 @@
 @import "tailwindcss";
-/* Rebuild trigger */
 
+/* ---------------------------------------------------------------------------
+   Design tokens
+   Paper / ink editorial palette with a single signal accent.
+--------------------------------------------------------------------------- */
+@theme {
+  --color-paper: #f3f2ed;
+  --color-paper-2: #ebe9e2;
+  --color-ink: #0e0e0c;
+  --color-ink-2: #1a1a17;
+  --color-ink-3: #262622;
+  --color-line: #d9d6cc;
+  --color-line-dark: #2e2e29;
+  --color-muted: #6f6c63;
+  --color-muted-dark: #8f8c82;
+  --color-signal: #ff4a1c;
+  --color-signal-soft: #ffe3d9;
+  --color-cobalt: #2b44ff;
+  --color-sun: #ffc21a;
+  --color-mint: #1fcf8f;
+  --color-lilac: #c7b6ff;
+
+  --font-display: var(--font-gyst), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, monospace;
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out-quart: cubic-bezier(0.76, 0, 0.24, 1);
+}
+
+html {
+  background: var(--color-paper);
+  color: var(--color-ink);
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  font-family: var(--font-sans);
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-feature-settings: "ss01", "cv11";
+}
+
+::selection {
+  background: var(--color-signal);
+  color: var(--color-paper);
+}
+
+/* ---------------------------------------------------------------------------
+   Lenis smooth scroll
+--------------------------------------------------------------------------- */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+/* ---------------------------------------------------------------------------
+   Backgrounds
+--------------------------------------------------------------------------- */
+@utility bg-grid {
+  background-image:
+    linear-gradient(to right, color-mix(in oklab, var(--color-ink) 7%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in oklab, var(--color-ink) 7%, transparent) 1px, transparent 1px);
+  background-size: 64px 64px;
+}
+
+@utility bg-grid-dark {
+  background-image:
+    linear-gradient(to right, color-mix(in oklab, var(--color-paper) 6%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in oklab, var(--color-paper) 6%, transparent) 1px, transparent 1px);
+  background-size: 64px 64px;
+}
+
+@utility bg-dots {
+  background-image: radial-gradient(color-mix(in oklab, var(--color-ink) 18%, transparent) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+@utility bg-dots-dark {
+  background-image: radial-gradient(color-mix(in oklab, var(--color-paper) 14%, transparent) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+/* Fades a grid out toward the edges */
+@utility mask-radial {
+  mask-image: radial-gradient(ellipse 70% 60% at 50% 40%, #000 30%, transparent 100%);
+}
+
+@utility mask-fade-y {
+  mask-image: linear-gradient(to bottom, transparent, #000 15%, #000 85%, transparent);
+}
+
+@utility mask-fade-x {
+  mask-image: linear-gradient(to right, transparent, #000 10%, #000 90%, transparent);
+}
+
+/* Film grain laid over the whole page */
+.grain {
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  opacity: 0.06;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+}
+
+/* ---------------------------------------------------------------------------
+   Type helpers
+--------------------------------------------------------------------------- */
+@utility label-mono {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 1;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* SplitText line masks — SplitText wraps each line in `.split-line-mask` with
+   overflow: clip, so pad the mask (not the line) to leave room for ascenders and
+   descenders (g, y, p) under tight leading, then cancel the padding with margins. */
+.split-line-mask {
+  padding: 0.1em 0.06em 0.26em;
+  margin: -0.1em -0.06em -0.26em;
+}
+
+/* Crosshair corner marks used on framed blocks */
+.corners {
+  position: relative;
+}
+.corners::before,
+.corners::after {
+  content: "";
+  position: absolute;
+  width: 9px;
+  height: 9px;
+  border-color: currentColor;
+  pointer-events: none;
+}
+.corners::before {
+  top: -5px;
+  left: -5px;
+  border-top: 1px solid;
+  border-left: 1px solid;
+}
+.corners::after {
+  bottom: -5px;
+  right: -5px;
+  border-bottom: 1px solid;
+  border-right: 1px solid;
+}
+
+/* Blinking caret for the typed chat demo */
+.caret::after {
+  content: "";
+  display: inline-block;
+  width: 0.5ch;
+  height: 1em;
+  margin-left: 2px;
+  vertical-align: -0.15em;
+  background: currentColor;
+  animation: blink 1s steps(1) infinite;
+}
+@keyframes blink {
+  50% { opacity: 0; }
+}
+
+/* Form fields on the dashboard */
+.field {
+  width: 100%;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--color-line);
+  padding: 14px 0 12px;
+  font-size: 18px;
+  outline: none;
+  transition: border-color 0.3s var(--ease-out-expo);
+}
+.field::placeholder {
+  color: color-mix(in oklab, var(--color-muted) 70%, transparent);
+}
+.field:focus {
+  border-color: var(--color-ink);
+}
+
+/* Native scrollbar in dark code blocks */
+.scroll-thin::-webkit-scrollbar { height: 6px; width: 6px; }
+.scroll-thin::-webkit-scrollbar-thumb { background: var(--color-line-dark); }
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

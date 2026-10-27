@@ -1,78 +1,120 @@
+'use client'
+
+import { useRef } from "react";
 import Link from "next/link";
-import { Twitter, Github, Linkedin, Bot } from "lucide-react";
+import { Twitter, Github, Linkedin } from "lucide-react";
+import { gsap, useGSAP, prefersReducedMotion } from "@/lib/gsap";
+import { RollText } from "./ui/motion";
+import { Logo } from "./Navbar";
+
+const columns = [
+    {
+        title: "Product",
+        links: [
+            { label: "Features", href: "/#features" },
+            { label: "Pricing", href: "/#pricing" },
+            { label: "Integrations", href: "#" },
+            { label: "Enterprise", href: "#" },
+        ],
+    },
+    {
+        title: "Company",
+        links: [
+            { label: "About Us", href: "#" },
+            { label: "Careers", href: "#" },
+            { label: "Blog", href: "#" },
+            { label: "Contact", href: "#" },
+        ],
+    },
+    {
+        title: "Resources",
+        links: [
+            { label: "Documentation", href: "#" },
+            { label: "Help Center", href: "#" },
+            { label: "Community", href: "#" },
+            { label: "Terms of Service", href: "#" },
+        ],
+    },
+]
+
+const markHover = ["hover:text-signal", "hover:text-cobalt", "hover:text-sun", "hover:text-mint", "hover:text-lilac"]
 
 export function Footer() {
+    const ref = useRef<HTMLElement>(null)
+
+    useGSAP(() => {
+        if (prefersReducedMotion()) return
+        gsap.from("[data-mark-char]", {
+            yPercent: 100,
+            stagger: 0.05,
+            duration: 1.4,
+            ease: "expo.out",
+            scrollTrigger: { trigger: "[data-mark]", start: "top 95%", once: true },
+        })
+    }, { scope: ref })
+
     return (
-        <footer className="bg-zinc-900 text-white py-12 border-t border-zinc-800">
-            <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-8">
+        <footer ref={ref} className="relative overflow-hidden border-t border-line bg-paper text-ink">
+            <div className="mx-auto grid max-w-350 grid-cols-2 gap-x-6 gap-y-12 px-5 pt-20 md:grid-cols-12 md:px-8 md:pt-28">
 
                 {/* Brand Column */}
-                <div className="space-y-4">
-                    <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 rounded-lg bg-white flex items-center justify-center text-zinc-900 font-bold text-lg">
-                            <Bot className="w-5 h-5 text-zinc-900" />
-                        </div>
-                        <span className="text-xl font-bold tracking-tight">
-                            Support<span className="text-zinc-500">.ai</span>
-                        </span>
-                    </div>
-                    <p className="text-zinc-400 text-sm leading-relaxed">
+                <div className="col-span-2 space-y-6 md:col-span-4">
+                    <Logo />
+                    <p className="max-w-xs leading-relaxed text-ink/60">
                         Revolutionizing customer support with AI-driven intelligence. Fast, accurate, and always available.
                     </p>
-                    <div className="flex gap-4">
-                        <SocialIcon href="#" label="Twitter">
-                            <Twitter className="w-5 h-5" />
+                    <div className="flex">
+                        <SocialIcon href="https://x.com/ankitgupta_79" label="Twitter">
+                            <Twitter className="h-4 w-4" />
                         </SocialIcon>
-                        <SocialIcon href="#" label="GitHub">
-                            <Github className="w-5 h-5" />
+                        <SocialIcon href="https://github.com/ankit-gupta-git/ally-support" label="GitHub">
+                            <Github className="h-4 w-4" />
                         </SocialIcon>
-                        <SocialIcon href="#" label="LinkedIn">
-                            <Linkedin className="w-5 h-5" />
+                        <SocialIcon href="https://www.linkedin.com/in/iamankit-gupta" label="LinkedIn">
+                            <Linkedin className="h-4 w-4" />
                         </SocialIcon>
                     </div>
                 </div>
 
-                {/* Links Column 1 */}
-                <div>
-                    <h3 className="font-semibold text-white mb-4">Product</h3>
-                    <ul className="space-y-3 text-sm text-zinc-400">
-                        <li><Link href="#features" className="hover:text-white transition-colors">Features</Link></li>
-                        <li><Link href="#pricing" className="hover:text-white transition-colors">Pricing</Link></li>
-                        <li><Link href="#" className="hover:text-white transition-colors">Integrations</Link></li>
-                        <li><Link href="#" className="hover:text-white transition-colors">Enterprise</Link></li>
-                    </ul>
-                </div>
-
-                {/* Links Column 2 */}
-                <div>
-                    <h3 className="font-semibold text-white mb-4">Company</h3>
-                    <ul className="space-y-3 text-sm text-zinc-400">
-                        <li><Link href="#" className="hover:text-white transition-colors">About Us</Link></li>
-                        <li><Link href="#" className="hover:text-white transition-colors">Careers</Link></li>
-                        <li><Link href="#" className="hover:text-white transition-colors">Blog</Link></li>
-                        <li><Link href="#" className="hover:text-white transition-colors">Contact</Link></li>
-                    </ul>
-                </div>
-
-                {/* Links Column 3 */}
-                <div>
-                    <h3 className="font-semibold text-white mb-4">Resources</h3>
-                    <ul className="space-y-3 text-sm text-zinc-400">
-                        <li><Link href="#" className="hover:text-white transition-colors">Documentation</Link></li>
-                        <li><Link href="#" className="hover:text-white transition-colors">Help Center</Link></li>
-                        <li><Link href="#" className="hover:text-white transition-colors">Community</Link></li>
-                        <li><Link href="#" className="hover:text-white transition-colors">Terms of Service</Link></li>
-                    </ul>
-                </div>
-
+                {columns.map((col, i) => (
+                    <div key={col.title} className={i === 0 ? "md:col-span-2 md:col-start-7" : "md:col-span-2"}>
+                        <h3 className="label-mono mb-6 text-muted">{col.title}</h3>
+                        <ul className="space-y-3">
+                            {col.links.map((l) => (
+                                <li key={l.label}>
+                                    <Link href={l.href} className="group inline-flex text-ink/80 hover:text-ink">
+                                        <RollText>{l.label}</RollText>
+                                    </Link>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                ))}
             </div>
 
-            <div className="max-w-7xl mx-auto px-6 mt-12 pt-8 border-t border-zinc-800 flex flex-col md:flex-row justify-between items-center text-sm text-zinc-500">
+            <div className="mx-auto mt-20 flex max-w-350 flex-col justify-between gap-4 border-t border-line px-5 py-6 text-sm text-ink/50 md:flex-row md:items-center md:px-8">
                 <p>&copy; {new Date().getFullYear()} Support.ai. All rights reserved.</p>
-                <div className="flex gap-6 mt-4 md:mt-0">
-                    <Link href="#" className="hover:text-white transition-colors">Privacy Policy</Link>
-                    <Link href="#" className="hover:text-white transition-colors">Terms of Use</Link>
+                <div className="flex gap-6">
+                    <Link href="#" className="group inline-flex hover:text-ink"><RollText>Privacy Policy</RollText></Link>
+                    <Link href="#" className="group inline-flex hover:text-ink"><RollText>Terms of Use</RollText></Link>
+                    <a href="#top" className="group inline-flex items-center gap-2 hover:text-ink">
+                        <RollText>Back to top ↑</RollText>
+                    </a>
                 </div>
+            </div>
+
+            {/* Oversized wordmark */}
+            <div data-mark className="flex cursor-default select-none justify-center overflow-hidden px-2 leading-[0.78]" >
+                {"Support.ai".split("").map((c, i) => (
+                    <span
+                        key={i}
+                        data-mark-char
+                        aria-hidden
+                        className={`inline-block font-display text-[21.5vw] tracking-[-0.06em] transition-colors duration-300 ${c === "." ? "text-signal" : `text-ink ${markHover[i % markHover.length]}`}`}
+                    >
+                        {c}
+                    </span>
+                ))}
             </div>
         </footer>
     );
@@ -82,8 +124,10 @@ function SocialIcon({ href, label, children }: { href: string, label: string, ch
     return (
         <a
             href={href}
+            target="_blank"
+            rel="noopener noreferrer"
             aria-label={label}
-            className="w-10 h-10 rounded-full bg-zinc-800 flex items-center justify-center text-zinc-400 hover:bg-zinc-700 hover:text-white transition-all"
+            className="-ml-px grid h-11 w-11 place-items-center border border-line text-ink/60 transition-colors duration-300 first:ml-0 hover:z-10 hover:border-ink hover:bg-ink hover:text-paper"
         >
             {children}
         </a>

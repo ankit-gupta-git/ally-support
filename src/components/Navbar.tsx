@@ -1,26 +1,72 @@
 'use client'
 
-import { AnimatePresence, motion } from "motion/react"
 import { useState, useRef, useEffect } from "react"
 import Link from "next/link"
-import { Menu, X, LayoutDashboard, LogOut, Bot } from "lucide-react"
+import { LayoutDashboard, LogOut } from "lucide-react"
 import axios from "axios"
-import { useRouter } from "next/navigation"
+import { gsap, ScrollTrigger, useGSAP } from "@/lib/gsap"
+import { RollText, buttonClass, ArrowGlyph } from "./ui/motion"
+
+const links = [
+    { label: "Features", href: "/#features" },
+    { label: "Process", href: "/#process" },
+    { label: "Pricing", href: "/#pricing" },
+    { label: "FAQ", href: "/#faq" },
+]
+
+export function Logo({ light = false }: { light?: boolean }) {
+    return (
+        <Link href="/" className="group flex items-center gap-2.5" aria-label="Support.ai home">
+            <span className={`relative grid h-7 w-7 place-items-center ${light ? "bg-paper" : "bg-ink"}`}>
+                <span className="h-2.5 w-2.5 bg-signal transition-transform duration-500 ease-out-expo group-hover:rotate-90 group-hover:scale-125" />
+            </span>
+            <span className={`font-display text-[19px] leading-none tracking-tight ${light ? "text-paper" : "text-ink"}`}>
+                Support<span className="text-signal">.</span>ai
+            </span>
+        </Link>
+    )
+}
 
 export function Navbar({ email, dashboard = false }: { email: string, dashboard?: boolean }) {
     const [scrolled, setScrolled] = useState(false)
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
-    const navigate = useRouter()
+    const navRef = useRef<HTMLElement>(null)
+    const menuRef = useRef<HTMLDivElement>(null)
+    const menuTl = useRef<gsap.core.Timeline>(null)
 
-    // Handle scroll effect
+    // Hide on scroll down, reveal on scroll up
+    useGSAP(() => {
+        const nav = navRef.current
+        if (!nav) return
+        gsap.from(nav, { yPercent: -100, duration: 1.2, delay: 0.1 })
+        const st = ScrollTrigger.create({
+            start: 0,
+            end: "max",
+            onUpdate: (self) => {
+                setScrolled(self.scroll() > 10)
+                if (self.scroll() < 120) return gsap.to(nav, { yPercent: 0, duration: 0.6, overwrite: true })
+                gsap.to(nav, { yPercent: self.direction === 1 ? -100 : 0, duration: 0.6, overwrite: true })
+            },
+        })
+        return () => st.kill()
+    }, { scope: navRef })
+
+    // Fullscreen mobile menu timeline
+    useGSAP(() => {
+        if (!menuRef.current) return
+        menuTl.current = gsap.timeline({ paused: true })
+            .set(menuRef.current, { display: "flex" })
+            .fromTo(menuRef.current, { clipPath: "inset(0 0 100% 0)" }, { clipPath: "inset(0 0 0% 0)", duration: 0.9, ease: "expo.inOut" })
+            .from("[data-menu-item]", { yPercent: 120, stagger: 0.06, duration: 1 }, "-=0.35")
+    }, { scope: menuRef })
+
     useEffect(() => {
-        const handleScroll = () => {
-            setScrolled(window.scrollY > 10)
-        }
-        window.addEventListener("scroll", handleScroll)
-        return () => window.removeEventListener("scroll", handleScroll)
-    }, [])
+        const tl = menuTl.current
+        if (!tl) return
+        if (mobileMenuOpen) tl.timeScale(1).play()
+        else tl.timeScale(1.6).reverse()
+    }, [mobileMenuOpen])
 
     const handleLogin = () => {
         setIsLoading(true)
@@ -30,99 +76,116 @@ export function Navbar({ email, dashboard = false }: { email: string, dashboard?
     return (
         <>
             <nav
-                className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 w-11/12 max-w-6xl rounded-2xl border transition-all duration-300 ${scrolled
-                    ? "bg-white/90 backdrop-blur-md border-zinc-200 shadow-lg"
-                    : "bg-white/70 backdrop-blur-sm border-transparent"
+                ref={navRef}
+                className={`fixed inset-x-0 top-0 z-50 transition-[background-color,border-color] duration-500 ${scrolled || mobileMenuOpen
+                    ? "border-b border-line bg-paper/85 backdrop-blur-md"
+                    : "border-b border-transparent bg-transparent"
                     }`}
             >
-                <div className="px-6 h-16 flex items-center justify-between">
-
-
-                    {/* Logo Section */}
-                    <Link href="/" className="flex items-center gap-2">
-                        <div className="w-8 h-8 rounded-lg bg-zinc-900 flex items-center justify-center text-white font-bold text-lg">
-                            <Bot className="w-5 h-5 text-white" />
-                        </div>
-                        <span className="text-lg font-bold tracking-tight text-zinc-900">
-                            Support<span className="text-zinc-400">.ai</span>
-                        </span>
-                    </Link>
+                <div className="mx-auto flex h-16 max-w-350 items-center justify-between px-5 md:px-8">
+                    <Logo />
 
                     {/* Desktop Navigation */}
-                    <div className="hidden md:flex items-center gap-6 mr-6">
-                    </div>
+                    {!dashboard && (
+                        <div className="hidden items-center gap-8 md:flex">
+                            {links.map((l, i) => (
+                                <a key={l.href} href={l.href} className="group label-mono flex items-center gap-1.5 text-ink/70 transition-colors hover:text-ink">
+                                    <span className="text-signal">0{i + 1}</span>
+                                    <RollText>{l.label}</RollText>
+                                </a>
+                            ))}
+                        </div>
+                    )}
 
                     {/* Right Actions */}
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-3">
                         {dashboard ? (
-                            <Link
-                                href="/embed"
-                                className="px-5 py-2 rounded-xl bg-zinc-900 text-white text-sm font-medium hover:bg-zinc-800 transition-all duration-200"
-                            >
-                                Embed Chatbot
-                            </Link>
+                            <div className="flex items-center gap-3">
+                                <Link href="/embed" className={buttonClass("ink", "sm")}>
+                                    <RollText>Embed Chatbot</RollText>
+                                    <ArrowGlyph />
+                                </Link>
+                                {email && <UserMenu email={email} />}
+                            </div>
                         ) : email ? (
                             <UserMenu email={email} />
                         ) : (
-                            <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-5">
                                 <button
                                     onClick={handleLogin}
                                     disabled={isLoading}
-                                    className="hidden md:block text-sm font-medium text-zinc-600 hover:text-zinc-900 transition-colors disabled:opacity-50"
+                                    className="group hidden text-sm font-medium text-ink/70 transition-colors hover:text-ink disabled:opacity-50 md:block"
                                 >
-                                    Sign in
+                                    <RollText>Sign in</RollText>
                                 </button>
                                 <button
                                     onClick={handleLogin}
                                     disabled={isLoading}
-                                    className="px-5 py-2 rounded-xl bg-zinc-900 text-white text-sm font-medium hover:bg-zinc-800 transition-all duration-200 disabled:opacity-50"
+                                    className={`${buttonClass("ink", "sm")} hidden sm:inline-flex`}
                                 >
-                                    {isLoading ? "Wait..." : "Get Started"}
+                                    <RollText>{isLoading ? "Wait..." : "Get Started"}</RollText>
+                                    <ArrowGlyph />
                                 </button>
                             </div>
                         )}
 
                         {/* Mobile Menu Button */}
-                        <button
-                            className="md:hidden p-2 text-zinc-600"
-                            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                        >
-                            {mobileMenuOpen ? (
-                                <X className="w-6 h-6" />
-                            ) : (
-                                <Menu className="w-6 h-6" />
-                            )}
-                        </button>
+                        {!dashboard && (
+                            <button
+                                className="relative grid h-10 w-10 place-items-center md:hidden"
+                                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                                aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
+                                aria-expanded={mobileMenuOpen}
+                            >
+                                <span className={`absolute h-px w-6 bg-ink transition-transform duration-500 ease-out-expo ${mobileMenuOpen ? "rotate-45" : "-translate-y-1"}`} />
+                                <span className={`absolute h-px w-6 bg-ink transition-transform duration-500 ease-out-expo ${mobileMenuOpen ? "-rotate-45" : "translate-y-1"}`} />
+                            </button>
+                        )}
                     </div>
                 </div>
             </nav>
 
             {/* Mobile Menu Overlay */}
-            <AnimatePresence>
-                {mobileMenuOpen && (
-                    <motion.div
-                        initial={{ opacity: 0, y: -10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -10 }}
-                        className="fixed inset-x-4 top-24 z-40 p-4 bg-white rounded-2xl shadow-xl border border-zinc-100 md:hidden"
-                    >
-                        <div className="flex flex-col gap-2">
-
-                            <div className="h-px bg-zinc-100 my-2" />
-                            <div className="h-px bg-zinc-100 my-2" />
-                            {!email && (
-                                <button
-                                    onClick={handleLogin}
-                                    disabled={isLoading}
-                                    className="w-full p-3 text-center bg-zinc-900 text-white rounded-xl font-medium disabled:opacity-50"
-                                >
-                                    {isLoading ? "Wait..." : "Sign In"}
-                                </button>
-                            )}
+            <div
+                ref={menuRef}
+                className="bg-grid fixed inset-0 z-40 hidden flex-col justify-between bg-paper px-5 pb-8 pt-24 md:hidden"
+                style={{ clipPath: "inset(0 0 100% 0)" }}
+            >
+                <div className="flex flex-col">
+                    {links.map((l, i) => (
+                        <div key={l.href} className="overflow-hidden border-b border-line">
+                            <a
+                                data-menu-item
+                                href={l.href}
+                                onClick={() => setMobileMenuOpen(false)}
+                                className="flex items-baseline justify-between py-4"
+                            >
+                                <span className="font-display text-5xl tracking-tight">{l.label}</span>
+                                <span className="label-mono text-signal">0{i + 1}</span>
+                            </a>
                         </div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
+                    ))}
+                </div>
+                <div className="overflow-hidden">
+                    <div data-menu-item>
+                        {email ? (
+                            <Link href="/dashboard" className={`${buttonClass("ink", "lg")} w-full`}>
+                                <RollText>Open Dashboard</RollText>
+                                <ArrowGlyph />
+                            </Link>
+                        ) : (
+                            <button
+                                onClick={handleLogin}
+                                disabled={isLoading}
+                                className={`${buttonClass("ink", "lg")} w-full`}
+                            >
+                                <RollText>{isLoading ? "Wait..." : "Sign In"}</RollText>
+                                <ArrowGlyph />
+                            </button>
+                        )}
+                    </div>
+                </div>
+            </div>
         </>
     )
 }
@@ -157,40 +220,34 @@ function UserMenu({ email }: { email: string }) {
         <div className="relative" ref={menuRef}>
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="w-10 h-10 rounded-full bg-linear-to-tr from-zinc-800 to-zinc-600 flex items-center justify-center text-white font-semibold ring-2 ring-transparent hover:ring-zinc-200 transition-all active:scale-95"
+                aria-expanded={isOpen}
+                aria-label="Account menu"
+                className="group relative grid h-10 w-10 place-items-center overflow-hidden border border-ink bg-paper font-display text-base text-ink transition-colors duration-300 hover:bg-ink hover:text-paper"
             >
                 {firstLetter}
+                <span className="absolute right-0 top-0 h-1.5 w-1.5 bg-signal" />
             </button>
 
-            <AnimatePresence>
-                {isOpen && (
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.95, y: 10 }}
-                        animate={{ opacity: 1, scale: 1, y: 0 }}
-                        exit={{ opacity: 0, scale: 0.95, y: 10 }}
-                        transition={{ duration: 0.15 }}
-                        className="absolute right-0 top-full mt-2 w-56 bg-white rounded-2xl shadow-xl shadow-zinc-200/50 border border-zinc-100 p-2 overflow-hidden"
-                    >
-                        <div className="px-3 py-2 border-b border-zinc-100 mb-1">
-                            <p className="text-xs text-zinc-400 font-medium uppercase tracking-wider">Signed in as</p>
-                            <p className="text-sm font-medium text-zinc-900 truncate">{email}</p>
-                        </div>
+            <div
+                className={`absolute right-0 top-full mt-3 w-64 origin-top-right border border-ink bg-paper shadow-[6px_6px_0_0_var(--color-ink)] transition-all duration-300 ease-out-expo ${isOpen ? "visible translate-y-0 opacity-100" : "invisible -translate-y-2 opacity-0"}`}
+            >
+                <div className="border-b border-line px-4 py-3">
+                    <p className="label-mono text-muted">Signed in as</p>
+                    <p className="mt-1.5 truncate text-sm font-medium text-ink">{email}</p>
+                </div>
 
-                        <Link
-                            href="/dashboard"
-                            className="w-full flex items-center gap-3 px-3 py-2 text-sm text-zinc-600 hover:text-zinc-900 hover:bg-zinc-50 rounded-xl transition-colors"
-                        >
-                            <LayoutDashboard className="w-4 h-4" />
-                            Dashboard
-                        </Link>
+                <Link
+                    href="/dashboard"
+                    className="group flex w-full items-center justify-between px-4 py-3 text-sm text-ink transition-colors hover:bg-ink hover:text-paper"
+                >
+                    <span className="flex items-center gap-3"><LayoutDashboard className="h-4 w-4" /> Dashboard</span>
+                    <ArrowGlyph />
+                </Link>
 
-                        <button className="w-full flex items-center gap-3 px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-xl transition-colors mt-1" onClick={handleLogOut}>
-                            <LogOut className="w-4 h-4" />
-                            Sign out
-                        </button>
-                    </motion.div>
-                )}
-            </AnimatePresence>
+                <button className="group flex w-full items-center justify-between border-t border-line px-4 py-3 text-sm text-signal transition-colors hover:bg-signal hover:text-paper" onClick={handleLogOut}>
+                    <span className="flex items-center gap-3"><LogOut className="h-4 w-4" /> Sign out</span>
+                </button>
+            </div>
         </div>
     )
 }
