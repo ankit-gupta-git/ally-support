@@ -2,6 +2,7 @@
 
 import { useRef } from "react"
 import { gsap, useGSAP, prefersReducedMotion } from "@/lib/gsap"
+import { LogoMark } from "../ui/LogoMark"
 
 const script = {
     greet: "Hello! How can I help you with your account today?",
@@ -83,9 +84,7 @@ export function ChatDemo() {
                 {/* Header */}
                 <div className="flex items-center justify-between border-b border-ink px-5 py-4">
                     <div className="flex items-center gap-3">
-                        <div className="grid h-9 w-9 place-items-center bg-ink">
-                            <span className="h-3 w-3 bg-signal" />
-                        </div>
+                        <LogoMark className="h-9 w-9" />
                         <div>
                             <div className="text-sm font-semibold">Support Agent</div>
                             <div className="label-mono mt-1 flex items-center gap-1.5 text-[10px] text-muted">

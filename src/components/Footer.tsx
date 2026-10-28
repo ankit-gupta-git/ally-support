@@ -45,7 +45,7 @@ export function Footer() {
     useGSAP(() => {
         if (prefersReducedMotion()) return
         gsap.from("[data-mark-char]", {
-            yPercent: 100,
+            yPercent: 140,
             stagger: 0.05,
             duration: 1.4,
             ease: "expo.out",
@@ -93,7 +93,7 @@ export function Footer() {
             </div>
 
             <div className="mx-auto mt-20 flex max-w-350 flex-col justify-between gap-4 border-t border-line px-5 py-6 text-sm text-ink/50 md:flex-row md:items-center md:px-8">
-                <p>&copy; {new Date().getFullYear()} Support.ai. All rights reserved.</p>
+                <p>&copy; {new Date().getFullYear()} AllySupport. All rights reserved.</p>
                 <div className="flex gap-6">
                     <Link href="#" className="group inline-flex hover:text-ink"><RollText>Privacy Policy</RollText></Link>
                     <Link href="#" className="group inline-flex hover:text-ink"><RollText>Terms of Use</RollText></Link>
@@ -104,13 +104,13 @@ export function Footer() {
             </div>
 
             {/* Oversized wordmark */}
-            <div data-mark className="flex cursor-default select-none justify-center overflow-hidden px-2 leading-[0.78]" >
-                {"Support.ai".split("").map((c, i) => (
+            <div data-mark className="flex cursor-default select-none justify-center overflow-hidden px-2 pb-[5vw] leading-[0.78]">
+                {"AllySupport".split("").map((c, i) => (
                     <span
                         key={i}
                         data-mark-char
                         aria-hidden
-                        className={`inline-block font-display text-[21.5vw] tracking-[-0.06em] transition-colors duration-300 ${c === "." ? "text-signal" : `text-ink ${markHover[i % markHover.length]}`}`}
+                        className={`inline-block font-display text-[18.5vw] tracking-[-0.06em] transition-colors duration-300 ${i >= 4 ? "text-signal hover:text-ink" : `text-ink ${markHover[i % markHover.length]}`}`}
                     >
                         {c}
                     </span>

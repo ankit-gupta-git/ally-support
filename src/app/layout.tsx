@@ -19,8 +19,8 @@ const geist = Geist({ subsets: ["latin"], variable: "--font-geist" });
 const geistMono = Geist_Mono({ subsets: ["latin"], variable: "--font-geist-mono" });
 
 export const metadata: Metadata = {
-  title: "Support.ai",
-  description: "the chatbot that you can embed in your website",
+  title: "AllySupport: AI customer support for your website",
+  description: "Train an AI support agent on your FAQs and policies, then embed it on any website with one script tag.",
 };
 
 export default function RootLayout({

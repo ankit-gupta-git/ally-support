@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { getSession } from "@/lib/getSession";
 
 export const metadata: Metadata = {
-    title: "Pricing - Support.ai",
+    title: "Pricing - AllySupport",
     description: "Simple, transparent pricing for AI-powered customer support.",
 };
 

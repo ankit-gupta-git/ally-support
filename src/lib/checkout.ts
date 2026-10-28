@@ -55,7 +55,7 @@ export async function startCheckout(plan: PlanId, cycle: BillingCycle): Promise<
             order_id: order.orderId,
             amount: order.amount,
             currency: order.currency,
-            name: "Support.ai",
+            name: "AllySupport",
             description: `${plan === "pro" ? "Pro" : "Enterprise"} plan, billed ${cycle === "annual" ? "yearly" : "monthly"}`,
             prefill: { email: order.email },
             theme: { color: "#2b44ff" },

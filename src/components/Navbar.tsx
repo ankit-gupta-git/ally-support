@@ -6,6 +6,7 @@ import { LayoutDashboard, LogOut } from "lucide-react"
 import axios from "axios"
 import { gsap, ScrollTrigger, useGSAP } from "@/lib/gsap"
 import { RollText, buttonClass, ArrowGlyph } from "./ui/motion"
+import { LogoMark } from "./ui/LogoMark"
 
 const links = [
     { label: "Features", href: "/#features" },
@@ -16,12 +17,10 @@ const links = [
 
 export function Logo({ light = false }: { light?: boolean }) {
     return (
-        <Link href="/" className="group flex items-center gap-2.5" aria-label="Support.ai home">
-            <span className={`relative grid h-7 w-7 place-items-center ${light ? "bg-paper" : "bg-ink"}`}>
-                <span className="h-2.5 w-2.5 bg-signal transition-transform duration-500 ease-out-expo group-hover:rotate-90 group-hover:scale-125" />
-            </span>
-            <span className={`font-display text-[19px] leading-none tracking-tight ${light ? "text-paper" : "text-ink"}`}>
-                Support<span className="text-signal">.</span>ai
+        <Link href="/" className="group flex items-center gap-2.5" aria-label="AllySupport home">
+            <LogoMark light={light} className="h-8 w-8" />
+            <span className={`font-display text-[20px] leading-none tracking-tight ${light ? "text-paper" : "text-ink"}`}>
+                Ally<span className="text-signal">Support</span>
             </span>
         </Link>
     )

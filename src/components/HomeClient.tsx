@@ -88,7 +88,7 @@ function HomeClient({ email }: { email: string }) {
 
   const testimonials = [
     {
-      quote: "Ally Support transformed our customer service. We reduced response times by 95%!",
+      quote: "AllySupport transformed our customer service. We reduced response times by 95%!",
       author: "Sarah J.",
       role: "Founder, TechStart"
     },

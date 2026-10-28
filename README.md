@@ -1,4 +1,4 @@
-# Support.ai - AI Customer Support Chatbot
+# AllySupport - AI Customer Support Chatbot
 
 An embeddable AI customer support chatbot built with Next.js, Google Gemini, Scalekit, and Razorpay.
 Businesses train the bot on their own knowledge base, then drop a single `<script>` tag on their site.
@@ -32,7 +32,7 @@ Businesses train the bot on their own knowledge base, then drop a single `<scrip
 
 ## Architecture & Workflow
 
-Support.ai utilizes a clean, modern decoupled architecture to support fast real-time chat interactions while maintaining secure dashboard administrative operations.
+AllySupport utilizes a clean, modern decoupled architecture to support fast real-time chat interactions while maintaining secure dashboard administrative operations.
 
 ### System Architecture Diagram
 
