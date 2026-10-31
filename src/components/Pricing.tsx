@@ -40,7 +40,7 @@ const tiers = [
         name: 'Enterprise',
         id: 'tier-enterprise',
         planId: 'enterprise' as PlanId,
-        href: '#',
+        href: '/contact',
         description: 'For large organizations with high volume needs.',
         features: [
             'Unlimited chatbots',

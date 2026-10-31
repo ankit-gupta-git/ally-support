@@ -13,26 +13,26 @@ const columns = [
         links: [
             { label: "Features", href: "/#features" },
             { label: "Pricing", href: "/#pricing" },
-            { label: "Integrations", href: "#" },
-            { label: "Enterprise", href: "#" },
+            { label: "Integrations", href: "/integrations" },
+            { label: "Enterprise", href: "/enterprise" },
         ],
     },
     {
         title: "Company",
         links: [
-            { label: "About Us", href: "#" },
-            { label: "Careers", href: "#" },
-            { label: "Blog", href: "#" },
-            { label: "Contact", href: "#" },
+            { label: "About Us", href: "/about" },
+            { label: "Careers", href: "/careers" },
+            { label: "Blog", href: "/blog" },
+            { label: "Contact", href: "/contact" },
         ],
     },
     {
         title: "Resources",
         links: [
-            { label: "Documentation", href: "#" },
-            { label: "Help Center", href: "#" },
-            { label: "Community", href: "#" },
-            { label: "Terms of Service", href: "#" },
+            { label: "Documentation", href: "/docs" },
+            { label: "Help Center", href: "/help" },
+            { label: "Community", href: "/community" },
+            { label: "Terms of Service", href: "/terms" },
         ],
     },
 ]
@@ -95,8 +95,8 @@ export function Footer() {
             <div className="mx-auto mt-20 flex max-w-350 flex-col justify-between gap-4 border-t border-line px-5 py-6 text-sm text-ink/50 md:flex-row md:items-center md:px-8">
                 <p>&copy; {new Date().getFullYear()} AllySupport. All rights reserved.</p>
                 <div className="flex gap-6">
-                    <Link href="#" className="group inline-flex hover:text-ink"><RollText>Privacy Policy</RollText></Link>
-                    <Link href="#" className="group inline-flex hover:text-ink"><RollText>Terms of Use</RollText></Link>
+                    <Link href="/privacy" className="group inline-flex hover:text-ink"><RollText>Privacy Policy</RollText></Link>
+                    <Link href="/terms-of-use" className="group inline-flex hover:text-ink"><RollText>Terms of Use</RollText></Link>
                     <a href="#top" className="group inline-flex items-center gap-2 hover:text-ink">
                         <RollText>Back to top ↑</RollText>
                     </a>
